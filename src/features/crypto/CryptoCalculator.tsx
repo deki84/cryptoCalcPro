@@ -40,9 +40,7 @@ const [coins, setCoins] = useState<MarketCoin[]>([]);
 const data: MarketCoin[] = await res.json();
 setCoins(data);
 
-if (data.length > 0 && !data.some((c) => c.id === coinId)) {
-  setCoinId(data[0].id);
-}
+
       } catch (error) {
         console.error("Failed to load rates:", error);
         setErrorMsg("Could not load live rates. Please try again.");
@@ -97,12 +95,16 @@ if (data.length > 0 && !data.some((c) => c.id === coinId)) {
     />
   </Field>
 
-  <Field label="Coin">
+<Field label="Coin">
   <select
     value={coinId}
     onChange={(e) => setCoinId(e.target.value)}
     className="w-full px-4 py-3 rounded-lg bg-zinc-950/40 border border-zinc-800 focus:outline-none focus:border-yellow-400 transition"
   >
+    <option value="" disabled>
+      Select coin...
+    </option>
+
     {coins.map((c) => (
       <option key={c.id} value={c.id}>
         {c.symbol} — {c.name}
