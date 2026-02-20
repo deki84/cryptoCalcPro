@@ -20,8 +20,8 @@ type MarketCoin = {
   rank: number | null;
 };
 export default function CryptoCalculator() {
-  const [amount, setAmount] = useState<string>("1");
-  const [coinId, setCoinId] = useState<string>("bitcoin");
+  const [amount, setAmount] = useState<string>("");
+  const [coinId, setCoinId] = useState<string>("");
 const [coins, setCoins] = useState<MarketCoin[]>([]);
   const [fiat, setFiat] = useState<Fiat>("EUR");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
