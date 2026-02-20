@@ -32,7 +32,7 @@ export default function PortfolioPage() {
   // Only coins that exist in your holdings (for prices + labels)
   const [holdingCoins, setHoldingCoins] = useState<MarketCoin[]>([]);
 
-  const [coinId, setCoinId] = useState<string>("bitcoin");
+  const [coinId, setCoinId] = useState<string>("");
   const [amount, setAmount] = useState<string>("");
 
   // Chart: which holding coin is currently selected
@@ -57,10 +57,11 @@ export default function PortfolioPage() {
 
         setAllCoins(data);
 
-        // Keep selected coinId valid
-        if (data.length > 0 && !data.some((c) => c.id === coinId)) {
-          setCoinId(data[0].id);
-        }
+        
+    // Keep selected coinId valid (but don't auto-select)
+if (coinId && !data.some((c) => c.id === coinId)) {
+  setCoinId("");
+}
       } catch (e) {
         console.error(e);
         if (!cancelled) {
@@ -76,30 +77,31 @@ export default function PortfolioPage() {
     return () => {
       cancelled = true;
     };
-  }, [fiat, coinId]); // only fiat
+  }, [fiat, coinId]); 
 
   // 2) Load only HOLDING coins (for correct prices + names)
   useEffect(() => {
     let cancelled = false;
 
-    async function loadHoldingCoins() {
-      const ids = Array.from(new Set(holdings.map((h) => h.coinId))).join(",");
+   async function loadHoldingCoins() {
+  const ids = Array.from(new Set(holdings.map((h) => h.coinId))).join(",");
 
-      if (!ids) {
-        setHoldingCoins([]);
-        return;
-      }
+  if (!ids) {
+    if (!cancelled) setHoldingCoins([]);
+    return;
+  }
 
-      try {
-        const res = await fetch(`/api/coins?vs=${fiat.toLowerCase()}&ids=${ids}`);
-        if (!res.ok) throw new Error("API request failed");
-        const data: MarketCoin[] = await res.json();
-        if (!cancelled) setHoldingCoins(data);
-      } catch (e) {
-        console.error(e);
-        if (!cancelled) setHoldingCoins([]);
-      }
-    }
+  try {
+    const res = await fetch(`/api/coins?vs=${fiat.toLowerCase()}&ids=${ids}`);
+    if (!res.ok) throw new Error("API request failed"); // optional
+
+    const data: MarketCoin[] = await res.json();
+    if (!cancelled) setHoldingCoins(data);
+  } catch (e) {
+    console.error(e);
+    if (!cancelled) setHoldingCoins([]);
+  }
+}
 
     loadHoldingCoins();
     return () => {

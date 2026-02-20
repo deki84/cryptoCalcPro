@@ -24,7 +24,6 @@ export default function WatchlistPage() {
   const [coins, setCoins] = useState<MarketCoin[]>([]);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-
   const [query, setQuery] = useState("");
   const [selectedCoinId, setSelectedCoinId] = useState<string>("bitcoin");
 
@@ -200,17 +199,42 @@ export default function WatchlistPage() {
               {favorites.length === 0 ? (
                 <div className="text-sm text-zinc-500">Star coins to add them here.</div>
               ) : (
-                favorites.slice(0, 6).map((c) => (
-                  <button
-                    key={c.id}
-                    type="button"
-                    onClick={() => setSelectedCoinId(c.id)}
-                    className="text-left rounded-xl border border-zinc-800 bg-zinc-950/30 px-4 py-3 hover:bg-zinc-900/40 transition"
-                  >
-                    <div className="text-white font-medium">{c.symbol}</div>
-                    <div className="text-xs text-zinc-500 truncate">{c.name}</div>
-                  </button>
-                ))
+          favorites.slice(0, 6).map((c) => (
+  <div
+    key={c.id}
+    className="relative text-left rounded-xl border border-zinc-800 bg-zinc-950/30 px-4 py-3 hover:bg-zinc-900/40 transition"
+  >
+    {/* Klick auf die Card -> Chart */}
+    <button
+      type="button"
+      onClick={() => setSelectedCoinId(c.id)}
+      className="block w-full text-left"
+    >
+      <div className="text-white font-medium">{c.symbol}</div>
+      <div className="text-xs text-zinc-500 truncate">{c.name}</div>
+    </button>
+
+    {/* Remove */}
+<button
+  type="button"
+  onClick={(e) => {
+    e.stopPropagation();
+    toggle(c.id);
+  }}
+  className="
+    absolute top-3 right-3
+    text-sm
+    text-zinc-500
+    transition-colors
+    hover:text-white
+  "
+  aria-label={`Remove ${c.name} from favorites`}
+  title="Remove"
+>
+  Remove
+</button>
+  </div>
+))
               )}
             </div>
           </div>

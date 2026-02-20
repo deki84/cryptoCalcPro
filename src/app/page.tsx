@@ -1,14 +1,33 @@
 "use client";
 
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import CryptoCalculator from "@/features/crypto/CryptoCalculator";
 import PortfolioPage from "@/features/portfolio/PortfolioPage";
 import WatchlistPage from "@/features/watchlist/WatchListPage";
 import HexagonLogo from "@/components/HexagonLogo";
-type Tab = "calculator" | "portfolio" | "watchlist";
+
+
 
 export default function HomePage() {
-  const [tab, setTab] = useState<Tab>("calculator");
+type Tab = "calculator" | "portfolio" | "watchlist";
+
+const [tab, setTab] = useState<Tab>("calculator");
+const [mounted, setMounted] = useState(false);
+
+useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+  setMounted(true);
+
+  const saved = localStorage.getItem("active_tab") as Tab | null;
+  if (saved) setTab(saved);
+}, []);
+
+useEffect(() => {
+  if (!mounted) return;
+  localStorage.setItem("active_tab", tab);
+}, [tab, mounted]);
+
+if (!mounted) return null; 
 
   return (
     <main className="min-h-screen bg-zinc-950 text-white">

@@ -51,7 +51,7 @@ setCoins(data);
     };
   
     fetchRates();
-  },  [fiat, coinId]);
+  },  [fiat]);
 
   const { has, toggle } = useWatchlist();
 
