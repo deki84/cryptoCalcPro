@@ -1,57 +1,56 @@
 "use client";
 
+import Image from "next/image";
 import { motion } from "framer-motion";
 
-type Props = {
-  size?: number;
-};
+type Props = { size?: number };
 
-export default function HexagonLogo({ size = 80 }: Props) {
+export default function HexagonLogo({ size = 120 }: Props) {
+  const haloSize = Math.round(size * 2.6);
+
   return (
-    <motion.div
+    <div
       aria-label="CryptoCalc Logo"
       style={{ width: size, height: size }}
-      className="select-none"
-      initial={{ opacity: 0, y: -6 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
+      className="relative select-none"
     >
-      <motion.svg
-  viewBox="0 0 100 100"
-  width={size}
-  height={size}
-  className="drop-shadow-[0_0_25px_rgba(250,204,21,0.25)]"
-  animate={{ y: [0, -2, 0] }}
-  transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
->
-  <defs>
-    <linearGradient id="hexGrad" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stopColor="#F7D154" />
-      <stop offset="100%" stopColor="#D18B2C" />
-    </linearGradient>
-  </defs>
+      <motion.div
+        className="absolute left-1/2 top-1/2 -z-10 rounded-full"
+        style={{
+          width: haloSize,
+          height: haloSize,
+          transform: "translate(-50%, -50%)",
+          background:
+            "radial-gradient(circle, rgba(250,204,21,0.85) 0%, rgba(250,204,21,0.25) 35%, rgba(250,204,21,0) 70%)",
+          filter: "blur(18px)",
+        }}
+        animate={{
+          opacity: [0.6, 1, 0.6],
+          scale: [0.98, 1.18, 0.98],
+        }}
+        transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
+      />
 
-  {/* Outer Hex */}
-  <path
-    d="M50 8 L85 28.5 L85 71.5 L50 92 L15 71.5 L15 28.5 Z"
-    fill="none"
-    stroke="url(#hexGrad)"
-    strokeWidth="6"
-    strokeLinejoin="round"
-    strokeLinecap="round"
-  />
-
-  {/* Inner Hex (minimal, modern look) */}
-  <path
-    d="M50 26 L70 37 L70 63 L50 74 L30 63 L30 37 Z"
-    fill="none"
-    stroke="url(#hexGrad)"
-    strokeWidth="5"
-    strokeLinejoin="round"
-    strokeLinecap="round"
-    opacity="0.85"
-  />
-</motion.svg>
-    </motion.div>
+      <motion.div
+        className="relative"
+        animate={{
+          y: [0, -10, 0],
+          filter: [
+            "drop-shadow(0 0 18px rgba(250,204,21,0.70)) drop-shadow(0 0 60px rgba(250,204,21,0.45))",
+            "drop-shadow(0 0 28px rgba(250,204,21,0.95)) drop-shadow(0 0 110px rgba(250,204,21,0.70))",
+            "drop-shadow(0 0 18px rgba(250,204,21,0.70)) drop-shadow(0 0 60px rgba(250,204,21,0.45))",
+          ],
+        }}
+        transition={{ duration: 3.0, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <Image
+          src="/cryptocalc-logo.png"
+          alt="CryptoCalc Logo"
+          width={size}
+          height={size}
+          priority
+        />
+      </motion.div>
+    </div>
   );
 }

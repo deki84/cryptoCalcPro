@@ -13,37 +13,37 @@ type ApiResponse = {
   timestamps: number[];
 };
 
-function toTimeSeries(prices: number[], timestamps: number[]): LineData[] {
+function toTimeSeries(prices?: number[], timestamps?: number[]): LineData[] {
+  if (!prices || !timestamps) return [];
+
   const len = Math.min(prices.length, timestamps.length);
 
-  // 1) build raw points
   const raw: LineData[] = [];
   for (let i = 0; i < len; i++) {
-    const tMs = timestamps[i];
-    const v = prices[i];
-
-    if (typeof tMs !== "number" || typeof v !== "number") continue;
-
-    const tSec = Math.floor(tMs / 1000) as UTCTimestamp;
-    raw.push({ time: tSec, value: v });
+    raw.push({
+      time: timestamps[i] as UTCTimestamp,
+      value: prices[i],
+    });
   }
 
-  // 2) sort ascending by time
+  // sort ascending by time
   raw.sort((a, b) => Number(a.time) - Number(b.time));
 
-  // 3) dedupe: if same timestamp exists, keep the LAST value
+  // dedupe: if same timestamp exists, keep the LAST value
   const map = new Map<number, number>();
   for (const p of raw) {
     map.set(Number(p.time), p.value);
   }
 
-  // 4) rebuild ordered list
+  // rebuild ordered list
   const out: LineData[] = Array.from(map.entries())
     .sort((a, b) => a[0] - b[0])
     .map(([time, value]) => ({ time: time as UTCTimestamp, value }));
 
   return out;
 }
+
+
 
 export default function SelectedCoinChart({
   coinId,

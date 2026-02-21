@@ -36,7 +36,7 @@ if (!mounted) return null;
        
 <div className="text-center mb-10">
   <div className="flex justify-center mb-6">
-    <HexagonLogo size={80} />
+    <HexagonLogo size={150} />
   </div>
 
   <h1 className="text-5xl md:text-6xl font-bold">
