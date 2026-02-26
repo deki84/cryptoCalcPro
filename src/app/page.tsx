@@ -1,116 +1,56 @@
 "use client";
 
-import { useState,useEffect } from "react";
-import CryptoCalculator from "@/features/crypto/CryptoCalculator";
-import PortfolioPage from "@/features/portfolio/PortfolioPage";
-import WatchlistPage from "@/features/watchlist/WatchListPage";
+import { SignInButton, SignedIn, SignedOut } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 import HexagonLogo from "@/components/HexagonLogo";
-import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 
-
-
-export default function HomePage() {
-type Tab = "calculator" | "portfolio" | "watchlist";
-
-const [tab, setTab] = useState<Tab>("calculator");
-const [mounted, setMounted] = useState(false);
-
-useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-  setMounted(true);
-
-  const saved = localStorage.getItem("active_tab") as Tab | null;
-  if (saved) setTab(saved);
-}, []);
-
-useEffect(() => {
-  if (!mounted) return;
-  localStorage.setItem("active_tab", tab);
-}, [tab, mounted]);
-
-if (!mounted) return null; 
+export default function LandingPage() {
+  const router = useRouter();
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white">
+    <main className="min-h-screen bg-zinc-950 text-white flex flex-col items-center justify-center px-6">
+      
+      {/* Logo */}
+      <HexagonLogo size={120} />
 
-{/* Navbar oben rechts */}
-        <div className="fixed top-4 right-6 z-50">
+      {/* Title */}
+      <h1 className="text-5xl md:text-6xl font-bold mt-8 text-center">
+        CryptoCalc Pro
+      </h1>
+      <p className="text-zinc-400 mt-4 text-center max-w-md">
+        Track your crypto portfolio, calculate live rates and manage your watchlist.
+      </p>
+
+      {/* Buttons */}
+      <div className="flex gap-4 mt-10">
+        
+        {/* Wenn eingeloggt → direkt zum Dashboard */}
+        <SignedIn>
+          <button
+            onClick={() => router.push("/dashboard")}
+            className="px-6 py-3 rounded-xl bg-yellow-400 text-black font-semibold hover:bg-yellow-300 transition"
+          >
+            Go to Dashboard
+          </button>
+        </SignedIn>
+
+        {/* Wenn ausgeloggt → Sign In oder Demo */}
         <SignedOut>
           <SignInButton mode="modal">
-            <button className="px-4 py-2 rounded-xl bg-yellow-400 text-black text-sm font-medium hover:bg-yellow-300 transition">
+            <button className="px-6 py-3 rounded-xl bg-yellow-400 text-black font-semibold hover:bg-yellow-300 transition">
               Sign In
             </button>
           </SignInButton>
+
+          <button
+            onClick={() => router.push("/dashboard?demo=true")}
+            className="px-6 py-3 rounded-xl border border-zinc-700 text-zinc-300 font-semibold hover:bg-zinc-800 transition"
+          >
+            Try Demo
+          </button>
         </SignedOut>
-        <SignedIn>
-          <UserButton />
-        </SignedIn>
+
       </div>
-
-      <section className="max-w-6xl mx-auto px-6 pt-24 pb-20">
-        {/* Header */}
-       
-<div className="text-center mb-10">
-  <div className="flex justify-center mb-6">
-    <HexagonLogo size={150} />
-  </div>
-
-  <h1 className="text-5xl md:text-6xl font-bold">
-    CryptoCalc Pro
-  </h1>
-
-  <p className="text-zinc-400 mt-4 max-w-2xl mx-auto">
-    Live crypto rates
-  </p>
-</div>
-
-        {/* Tabs */}
-        <div className="flex justify-center mb-8">
-          <div className="inline-flex rounded-2xl border border-zinc-800 bg-zinc-900/30 backdrop-blur p-1">
-            <TabButton active={tab === "calculator"} onClick={() => setTab("calculator")}>
-              Calculator
-            </TabButton>
-            <TabButton active={tab === "portfolio"} onClick={() => setTab("portfolio")}>
-              Portfolio
-            </TabButton>
-           <TabButton active={tab === "watchlist"} onClick={() => setTab("watchlist")}>
-  Watchlist
-</TabButton>
-          </div>
-        </div>
-
-        {/* Content */}
-        {tab === "calculator" ? <CryptoCalculator /> : null}
-      {tab === "portfolio" ? <PortfolioPage /> : null}
-      {tab === "watchlist" ? <WatchlistPage /> : null}
-      </section>
     </main>
   );
 }
-
-function TabButton({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={[
-        "px-4 py-2 rounded-xl text-sm font-medium transition",
-        active
-          ? "bg-yellow-400 text-black"
-          : "text-zinc-200 hover:bg-zinc-950/40",
-      ].join(" ")}
-    >
-      {children}
-    </button>
-  );
-}
-
-
