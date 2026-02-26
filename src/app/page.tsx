@@ -5,6 +5,7 @@ import CryptoCalculator from "@/features/crypto/CryptoCalculator";
 import PortfolioPage from "@/features/portfolio/PortfolioPage";
 import WatchlistPage from "@/features/watchlist/WatchListPage";
 import HexagonLogo from "@/components/HexagonLogo";
+import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 
 
 
@@ -31,6 +32,21 @@ if (!mounted) return null;
 
   return (
     <main className="min-h-screen bg-zinc-950 text-white">
+
+{/* Navbar oben rechts */}
+        <div className="fixed top-4 right-6 z-50">
+        <SignedOut>
+          <SignInButton mode="modal">
+            <button className="px-4 py-2 rounded-xl bg-yellow-400 text-black text-sm font-medium hover:bg-yellow-300 transition">
+              Sign In
+            </button>
+          </SignInButton>
+        </SignedOut>
+        <SignedIn>
+          <UserButton />
+        </SignedIn>
+      </div>
+
       <section className="max-w-6xl mx-auto px-6 pt-24 pb-20">
         {/* Header */}
        
