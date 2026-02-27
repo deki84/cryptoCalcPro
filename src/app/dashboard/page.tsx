@@ -8,12 +8,9 @@ import HexagonLogo from "@/components/HexagonLogo";
 import { useUser, useClerk } from "@clerk/nextjs";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
+import { Suspense } from "react";
 
-
-
-
-export default function HomePage() {
-
+function DashboardContent() {
 
 const searchParams = useSearchParams();
 const isDemo = searchParams.get("demo") === "true";
@@ -142,3 +139,10 @@ function TabButton({
 }
 
 
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={null}>
+      <DashboardContent />
+    </Suspense>
+  );
+}

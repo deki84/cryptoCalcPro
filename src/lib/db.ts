@@ -1,8 +1,13 @@
 import { neon } from "@neondatabase/serverless";
 
-export const sql = neon(process.env.DATABASE_URL!);
+const connectionString = process.env.DATABASE_URL;
+
+export const sql = connectionString
+  ? neon(connectionString)
+  : null;
 
 export async function ensureHoldingsTable() {
+  if (!sql) return;
   await sql`
     CREATE TABLE IF NOT EXISTS holdings (
       id TEXT NOT NULL,
@@ -15,6 +20,7 @@ export async function ensureHoldingsTable() {
 }
 
 export async function ensureWatchlistTable() {
+if (!sql) return;
   await sql`
     CREATE TABLE IF NOT EXISTS watchlist (
       user_id TEXT NOT NULL,
