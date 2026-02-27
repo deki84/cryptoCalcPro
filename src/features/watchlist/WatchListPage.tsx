@@ -17,6 +17,8 @@ type MarketCoin = {
   rank: number | null;
 };
 
+const SEARCH_RE = /^[a-zA-Z0-9\s\-]*$/;
+
 export default function WatchlistPage() {
   const { ids, has, toggle } = useWatchlist();
 
@@ -25,6 +27,16 @@ export default function WatchlistPage() {
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [query, setQuery] = useState("");
+  const [queryError, setQueryError] = useState<string | null>(null);
+
+  function handleQueryChange(v: string) {
+    if (v !== "" && !SEARCH_RE.test(v)) {
+      setQueryError("Keine Sonderzeichen erlaubt — nur Buchstaben und Zahlen");
+    } else {
+      setQueryError(null);
+    }
+    setQuery(v);
+  }
   const [selectedCoinId, setSelectedCoinId] = useState<string>("bitcoin");
 
   // Load top 250 for search/list
@@ -111,10 +123,13 @@ export default function WatchlistPage() {
         <div className="mt-5">
           <input
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="w-full px-4 py-3 rounded-lg bg-zinc-950/40 border border-zinc-800 focus:outline-none focus:border-yellow-400 transition"
+            onChange={(e) => handleQueryChange(e.target.value)}
+            className={`w-full px-4 py-3 rounded-lg bg-zinc-950/40 border focus:outline-none transition ${queryError ? "border-red-500 focus:border-red-500" : "border-zinc-800 focus:border-yellow-400"}`}
             placeholder="Search (e.g. bitcoin, BTC, solana...)"
           />
+          {queryError && (
+            <p className="mt-1 text-xs text-red-400">{queryError}</p>
+          )}
         </div>
 
         {loading ? <div className="mt-4 text-sm text-zinc-400">Loading coins…</div> : null}

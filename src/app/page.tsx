@@ -1,11 +1,23 @@
 "use client";
 
-import { SignInButton, SignedIn, SignedOut } from "@clerk/nextjs";
+import { SignInButton,SignedOut } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import HexagonLogo from "@/components/HexagonLogo";
-
+import { useEffect } from "react";
+import { useUser } from "@clerk/nextjs";
 export default function LandingPage() {
+  
   const router = useRouter();
+
+  const { isSignedIn, isLoaded } = useUser();
+
+useEffect(() => {
+  if (isLoaded && isSignedIn) {
+    router.push("/dashboard");
+  }
+}, [isLoaded, isSignedIn, router]);
+
+if (!isLoaded) return null;
 
   return (
     <main className="min-h-screen bg-zinc-950 text-white flex flex-col items-center justify-center px-6">
@@ -24,15 +36,7 @@ export default function LandingPage() {
       {/* Buttons */}
       <div className="flex gap-4 mt-10">
         
-        {/* Wenn eingeloggt → direkt zum Dashboard */}
-        <SignedIn>
-          <button
-            onClick={() => router.push("/dashboard")}
-            className="px-6 py-3 rounded-xl bg-yellow-400 text-black font-semibold hover:bg-yellow-300 transition"
-          >
-            Go to Dashboard
-          </button>
-        </SignedIn>
+    
 
         {/* Wenn ausgeloggt → Sign In oder Demo */}
         <SignedOut>

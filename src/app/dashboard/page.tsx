@@ -5,9 +5,8 @@ import CryptoCalculator from "@/features/crypto/CryptoCalculator";
 import PortfolioPage from "@/features/portfolio/PortfolioPage";
 import WatchlistPage from "@/features/watchlist/WatchListPage";
 import HexagonLogo from "@/components/HexagonLogo";
-import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
-import { useUser } from "@clerk/nextjs"; 
-import { useSearchParams } from "next/navigation"; 
+import { useUser, useClerk } from "@clerk/nextjs";
+import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 
 
@@ -16,9 +15,10 @@ import { useRouter } from "next/navigation";
 export default function HomePage() {
 
 
-const searchParams = useSearchParams();             
-const isDemo = searchParams.get("demo") === "true"; 
+const searchParams = useSearchParams();
+const isDemo = searchParams.get("demo") === "true";
 const { isSignedIn, isLoaded } = useUser();
+const { signOut } = useClerk();
 const router = useRouter();
 type Tab = "calculator" | "portfolio" | "watchlist";
 
@@ -64,9 +64,15 @@ if (!mounted) return null;
     </button>
   )}
 
-  
-
-  
+  {/* Logout Button für eingeloggte Nutzer */}
+  {isSignedIn && !isDemo && (
+    <button
+      onClick={() => signOut({ redirectUrl: "/" })}
+      className="px-4 py-2 rounded-xl border border-zinc-700 text-zinc-300 text-sm font-medium hover:bg-zinc-800 transition"
+    >
+      Sign Out
+    </button>
+  )}
 </div>
 
       <section className="max-w-6xl mx-auto px-6 pt-24 pb-20">

@@ -84,7 +84,7 @@ if (coinId && !data.some((c) => c.id === coinId)) {
     let cancelled = false;
 
    async function loadHoldingCoins() {
-  const ids = Array.from(new Set(holdings.map((h) => h.coinId))).join(",");
+  const ids = Array.from(new Set(holdings.map((h) => h.coinId).filter(Boolean))).join(",");
 
   if (!ids) {
     if (!cancelled) setHoldingCoins([]);

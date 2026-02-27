@@ -1,6 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { Field } from "@/components/ui/Field";
+
+const DECIMAL_RE = /^[0-9]*([.,][0-9]*)?$/;
 
 type Fiat = "EUR" | "USD";
 
@@ -33,6 +36,17 @@ export default function AddHoldingForm({
   onAdd,
   totalValue,
 }: Props) {
+  const [amountError, setAmountError] = useState<string | null>(null);
+
+  function handleAmountChange(v: string) {
+    if (v !== "" && !DECIMAL_RE.test(v)) {
+      setAmountError("Nur Zahlen erlaubt (z. B. 0.25)");
+    } else {
+      setAmountError(null);
+    }
+    onAmountChange(v);
+  }
+
   return (
     <div className="rounded-2xl border border-zinc-800 bg-zinc-900/30 p-6">
       <div className="text-lg font-semibold text-white">Your portfolio</div>
@@ -62,11 +76,14 @@ export default function AddHoldingForm({
         <Field label="Amount (coin units)">
           <input
             value={amount}
-            onChange={(e) => onAmountChange(e.target.value)}
+            onChange={(e) => handleAmountChange(e.target.value)}
             inputMode="decimal"
-            className="w-full px-4 py-3 rounded-lg bg-zinc-950/40 border border-zinc-800 focus:outline-none focus:border-yellow-400 transition"
+            className={`w-full px-4 py-3 rounded-lg bg-zinc-950/40 border focus:outline-none transition ${amountError ? "border-red-500 focus:border-red-500" : "border-zinc-800 focus:border-yellow-400"}`}
             placeholder="e.g. 0.25"
           />
+          {amountError && (
+            <p className="mt-1 text-xs text-red-400">{amountError}</p>
+          )}
         </Field>
 
         <Field label="Currency">

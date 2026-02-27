@@ -19,14 +19,36 @@ type MarketCoin = {
   change24h: number | null;
   rank: number | null;
 };
+const DECIMAL_RE = /^[0-9]*([.,][0-9]*)?$/;
+
 export default function CryptoCalculator() {
   const [amount, setAmount] = useState<string>("");
+  const [amountError, setAmountError] = useState<string | null>(null);
   const [coinId, setCoinId] = useState<string>("");
 const [coins, setCoins] = useState<MarketCoin[]>([]);
   const [fiat, setFiat] = useState<Fiat>("EUR");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [monthlyExpenses, setMonthlyExpenses] = useState<string>("");
+  const [monthlyError, setMonthlyError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+
+  function handleAmountChange(v: string) {
+    if (v !== "" && !DECIMAL_RE.test(v)) {
+      setAmountError("Nur Zahlen erlaubt (z. B. 1.5)");
+    } else {
+      setAmountError(null);
+    }
+    setAmount(v);
+  }
+
+  function handleMonthlyChange(v: string) {
+    if (v !== "" && !DECIMAL_RE.test(v)) {
+      setMonthlyError("Nur Zahlen erlaubt (z. B. 2500)");
+    } else {
+      setMonthlyError(null);
+    }
+    setMonthlyExpenses(v);
+  }
   
 
   // Fetch rates from internal API on first render
@@ -88,11 +110,14 @@ setCoins(data);
   <Field label="Amount">
     <input
       value={amount}
-      onChange={(e) => setAmount(e.target.value)}
+      onChange={(e) => handleAmountChange(e.target.value)}
       inputMode="decimal"
-      className="w-full px-4 py-3 rounded-lg bg-zinc-950/40 border border-zinc-800 focus:outline-none focus:border-yellow-400 transition"
+      className={`w-full px-4 py-3 rounded-lg bg-zinc-950/40 border focus:outline-none transition ${amountError ? "border-red-500 focus:border-red-500" : "border-zinc-800 focus:border-yellow-400"}`}
       placeholder="e.g. 1.5"
     />
+    {amountError && (
+      <p className="mt-1 text-xs text-red-400">{amountError}</p>
+    )}
   </Field>
 
 <Field label="Coin">
@@ -132,11 +157,14 @@ setCoins(data);
   <Field label="Monthly expenses">
     <input
       value={monthlyExpenses}
-      onChange={(e) => setMonthlyExpenses(e.target.value)}
+      onChange={(e) => handleMonthlyChange(e.target.value)}
       inputMode="decimal"
-      className="w-full px-4 py-3 rounded-lg bg-zinc-950/40 border border-zinc-800 focus:outline-none focus:border-yellow-400 transition"
+      className={`w-full px-4 py-3 rounded-lg bg-zinc-950/40 border focus:outline-none transition ${monthlyError ? "border-red-500 focus:border-red-500" : "border-zinc-800 focus:border-yellow-400"}`}
       placeholder="e.g. 2500"
     />
+    {monthlyError && (
+      <p className="mt-1 text-xs text-red-400">{monthlyError}</p>
+    )}
   </Field>
 </div>
 
