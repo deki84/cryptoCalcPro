@@ -48,7 +48,7 @@ export default function PortfolioPage() {
 
       try {
         const res = await fetch(
-          `/api/coins?vs=${fiat.toLowerCase()}&perPage=250&page=1`
+          `/api/coins?vs=${fiat.toLowerCase()}&perPage=250&page=1`,
         );
         if (!res.ok) throw new Error("API request failed");
 
@@ -57,11 +57,10 @@ export default function PortfolioPage() {
 
         setAllCoins(data);
 
-        
-    // Keep selected coinId valid (but don't auto-select)
-if (coinId && !data.some((c) => c.id === coinId)) {
-  setCoinId("");
-}
+        // Keep selected coinId valid (but don't auto-select)
+        if (coinId && !data.some((c) => c.id === coinId)) {
+          setCoinId("");
+        }
       } catch (e) {
         console.error(e);
         if (!cancelled) {
@@ -77,31 +76,35 @@ if (coinId && !data.some((c) => c.id === coinId)) {
     return () => {
       cancelled = true;
     };
-  }, [fiat, coinId]); 
+  }, [fiat, coinId]);
 
   // 2) Load only HOLDING coins (for correct prices + names)
   useEffect(() => {
     let cancelled = false;
 
-   async function loadHoldingCoins() {
-  const ids = Array.from(new Set(holdings.map((h) => h.coinId).filter(Boolean))).join(",");
+    async function loadHoldingCoins() {
+      const ids = Array.from(
+        new Set(holdings.map((h) => h.coinId).filter(Boolean)),
+      ).join(",");
 
-  if (!ids) {
-    if (!cancelled) setHoldingCoins([]);
-    return;
-  }
+      if (!ids) {
+        if (!cancelled) setHoldingCoins([]);
+        return;
+      }
 
-  try {
-    const res = await fetch(`/api/coins?vs=${fiat.toLowerCase()}&ids=${ids}`);
-    if (!res.ok) throw new Error("API request failed"); // optional
+      try {
+        const res = await fetch(
+          `/api/coins?vs=${fiat.toLowerCase()}&ids=${ids}`,
+        );
+        if (!res.ok) throw new Error("API request failed"); // optional
 
-    const data: MarketCoin[] = await res.json();
-    if (!cancelled) setHoldingCoins(data);
-  } catch (e) {
-    console.error(e);
-    if (!cancelled) setHoldingCoins([]);
-  }
-}
+        const data: MarketCoin[] = await res.json();
+        if (!cancelled) setHoldingCoins(data);
+      } catch (e) {
+        console.error(e);
+        if (!cancelled) setHoldingCoins([]);
+      }
+    }
 
     loadHoldingCoins();
     return () => {
@@ -163,7 +166,11 @@ if (coinId && !data.some((c) => c.id === coinId)) {
         </div>
 
         <AddHoldingForm
-          coins={allCoins.map((c) => ({ id: c.id, symbol: c.symbol, name: c.name }))}
+          coins={allCoins.map((c) => ({
+            id: c.id,
+            symbol: c.symbol,
+            name: c.name,
+          }))}
           fiat={fiat}
           coinId={coinId}
           amount={amount}
@@ -196,10 +203,13 @@ if (coinId && !data.some((c) => c.id === coinId)) {
         <div className="flex items-center justify-between gap-4">
           <div>
             <div className="text-sm text-zinc-400">Chart</div>
-            <div className="text-xs text-zinc-500">Pick a coin from your portfolio</div>
+            <div className="text-xs text-zinc-500">
+              Pick a coin from your portfolio
+            </div>
           </div>
 
           <select
+            aria-label="Select chart coin"
             value={selectedChartCoinId}
             onChange={(e) => setSelectedChartCoinId(e.target.value)}
             className="rounded-lg bg-zinc-950/40 border border-zinc-800 px-3 py-2 text-sm text-zinc-200"
@@ -221,14 +231,17 @@ if (coinId && !data.some((c) => c.id === coinId)) {
             <SelectedCoinChart coinId={selectedChartCoinId} fiat={fiat} />
           </div>
         ) : (
-          <div className="mt-4 text-sm text-zinc-400">Add a holding to see charts.</div>
+          <div className="mt-4 text-sm text-zinc-400">
+            Add a holding to see charts.
+          </div>
         )}
       </div>
 
       <div className="rounded-2xl border border-zinc-800 bg-zinc-900/30 p-6">
         <div className="text-sm text-zinc-400">Portfolio summary</div>
         <div className="mt-3 text-3xl font-bold text-white">
-          {totalValue.toLocaleString(undefined, { maximumFractionDigits: 2 })} {fiat}
+          {totalValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}{" "}
+          {fiat}
         </div>
         <div className="mt-1 text-xs text-zinc-500">
           Total value across all holdings

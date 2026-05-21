@@ -8,18 +8,22 @@ type Props = { size?: number };
 export default function HexagonLogo({ size = 120 }: Props) {
   const haloSize = Math.round(size * 2.6);
 
+  const offset = (haloSize - size) / 2;
+
   return (
     <div
       aria-label="CryptoCalc Logo"
       style={{ width: size, height: size }}
       className="relative select-none"
     >
+      {/* Glow effect */}
       <motion.div
-        className="absolute left-1/2 top-1/2 -z-10 rounded-full"
+        className="absolute -z-10 rounded-full"
         style={{
           width: haloSize,
           height: haloSize,
-          transform: "translate(-50%, -50%)",
+          top: -offset,
+          left: -offset,
           background:
             "radial-gradient(circle, rgba(250,204,21,0.85) 0%, rgba(250,204,21,0.25) 35%, rgba(250,204,21,0) 70%)",
           filter: "blur(18px)",
@@ -31,6 +35,7 @@ export default function HexagonLogo({ size = 120 }: Props) {
         transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
       />
 
+      {/* Logo image */}
       <motion.div
         className="relative"
         animate={{

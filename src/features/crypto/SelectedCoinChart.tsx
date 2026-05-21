@@ -1,9 +1,15 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { createChart, ColorType, CrosshairMode, LineSeries } from "lightweight-charts";
+import {
+  createChart,
+  ColorType,
+  CrosshairMode,
+  LineSeries,
+} from "lightweight-charts";
 import type { ISeriesApi, LineData, UTCTimestamp } from "lightweight-charts";
-type RangeKey = "1" | "7" | "30" | "365"; // 24H, 7D, 1M, 1Y
+
+type RangeKey = "1" | "7" | "30" | "365";
 
 type ApiResponse = {
   id: string;
@@ -26,16 +32,13 @@ function toTimeSeries(prices?: number[], timestamps?: number[]): LineData[] {
     });
   }
 
-  // sort ascending by time
   raw.sort((a, b) => Number(a.time) - Number(b.time));
 
-  // dedupe: if same timestamp exists, keep the LAST value
   const map = new Map<number, number>();
   for (const p of raw) {
     map.set(Number(p.time), p.value);
   }
 
-  // rebuild ordered list
   const out: LineData[] = Array.from(map.entries())
     .sort((a, b) => a[0] - b[0])
     .map(([time, value]) => ({ time: time as UTCTimestamp, value }));
@@ -43,13 +46,11 @@ function toTimeSeries(prices?: number[], timestamps?: number[]): LineData[] {
   return out;
 }
 
-
-
 export default function SelectedCoinChart({
   coinId,
   fiat,
 }: {
-  coinId: string; // e.g. "bitcoin"
+  coinId: string;
   fiat: "EUR" | "USD";
 }) {
   const [range, setRange] = useState<RangeKey>("1");
@@ -58,18 +59,20 @@ export default function SelectedCoinChart({
 
   const containerRef = useRef<HTMLDivElement | null>(null);
   const chartRef = useRef<ReturnType<typeof createChart> | null>(null);
-  
-const seriesRef = useRef<ISeriesApi<"Line"> | null>(null);
+  const seriesRef = useRef<ISeriesApi<"Line"> | null>(null);
 
   const vs = fiat.toLowerCase();
 
+  // Fetch chart data
   useEffect(() => {
     let cancelled = false;
 
     async function load() {
       setLoading(true);
       try {
-        const res = await fetch(`/api/chart?id=${coinId}&vs=${vs}&days=${range}`);
+        const res = await fetch(
+          `/api/chart?id=${coinId}&vs=${vs}&days=${range}`,
+        );
         const json = (await res.json()) as ApiResponse;
         if (!cancelled) setData(json);
       } catch {
@@ -94,33 +97,36 @@ const seriesRef = useRef<ISeriesApi<"Line"> | null>(null);
   useEffect(() => {
     if (!containerRef.current) return;
 
-   const chart = createChart(containerRef.current, {
-  width: containerRef.current.clientWidth,
-  height: 260,
-  layout: {
-    background: { type: ColorType.Solid, color: "transparent" },
-    textColor: "rgba(255,255,255,0.75)",
-  },
-  grid: {
-    vertLines: { color: "rgba(255,255,255,0.06)" },
-    horzLines: { color: "rgba(255,255,255,0.06)" },
-  },
-  rightPriceScale: { borderColor: "rgba(255,255,255,0.08)" },
-  timeScale: { borderColor: "rgba(255,255,255,0.08)" },
-  crosshair: { mode: CrosshairMode.Normal },
-});
+    const chart = createChart(containerRef.current, {
+      width: containerRef.current.clientWidth,
+      height: 260,
+      layout: {
+        background: { type: ColorType.Solid, color: "transparent" },
+        textColor: "rgba(255,255,255,0.75)",
+      },
+      grid: {
+        vertLines: { color: "rgba(255,255,255,0.06)" },
+        horzLines: { color: "rgba(255,255,255,0.06)" },
+      },
+      rightPriceScale: { borderColor: "rgba(255,255,255,0.08)" },
+      timeScale: { borderColor: "rgba(255,255,255,0.08)" },
+      crosshair: { mode: CrosshairMode.Normal },
+    });
 
-const line = chart.addSeries(LineSeries, {
-  lineWidth: 2,
-  priceLineVisible: true,
-  lastValueVisible: true,
-});
+    const line = chart.addSeries(LineSeries, {
+      lineWidth: 2,
+      priceLineVisible: true,
+      lastValueVisible: true,
+    });
 
     chartRef.current = chart;
     seriesRef.current = line;
 
+    // Responsive resize
     const ro = new ResizeObserver(() => {
-      chart.applyOptions({ width: containerRef.current!.clientWidth });
+      if (containerRef.current) {
+        chart.applyOptions({ width: containerRef.current.clientWidth });
+      }
     });
     ro.observe(containerRef.current);
 
@@ -139,7 +145,6 @@ const line = chart.addSeries(LineSeries, {
 
     seriesRef.current.setData(seriesData);
 
-    // Color by trend
     const first = seriesData[0]?.value ?? 0;
     const last = seriesData[seriesData.length - 1]?.value ?? 0;
     const positive = last >= first;
@@ -155,30 +160,33 @@ const line = chart.addSeries(LineSeries, {
     seriesData.length > 0 ? seriesData[seriesData.length - 1].value : null;
 
   return (
-    <div className="rounded-2xl border border-zinc-800 bg-zinc-900/30 p-6">
-      <div className="flex items-start justify-between gap-6">
+    <div className="rounded-2xl border border-zinc-800 bg-zinc-900/30 p-4 sm:p-6">
+      {/* Header: coin info + range buttons */}
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div>
           <div className="text-sm text-zinc-400">Selected coin chart</div>
           <div className="mt-1 text-xs text-zinc-500">
             {coinId} • {fiat}
           </div>
-
-          <div className="mt-3 text-3xl font-bold text-white">
-          {currentPrice !== null
-  ? currentPrice.toLocaleString(undefined, { maximumFractionDigits: 2 })
-  : "—"}{" "}
-{fiat}
+          <div className="mt-3 text-2xl sm:text-3xl font-bold text-white">
+            {currentPrice !== null
+              ? currentPrice.toLocaleString(undefined, {
+                  maximumFractionDigits: 2,
+                })
+              : "—"}{" "}
+            {fiat}
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        {/* Range buttons - scrollable on small screens */}
+        <div className="flex items-center gap-2 overflow-x-auto">
           {(["1", "7", "30", "365"] as const).map((k) => (
             <button
               key={k}
               type="button"
               onClick={() => setRange(k)}
               className={
-                "rounded-xl border px-4 py-2 text-sm transition " +
+                "rounded-xl border px-3 sm:px-4 py-2 text-xs sm:text-sm transition whitespace-nowrap " +
                 (range === k
                   ? "bg-yellow-400 text-black border-yellow-400"
                   : "border-zinc-800 bg-zinc-950/30 text-zinc-200 hover:bg-zinc-900/40")
@@ -190,7 +198,8 @@ const line = chart.addSeries(LineSeries, {
         </div>
       </div>
 
-      <div className="mt-5">
+      {/* Chart container */}
+      <div className="mt-4 sm:mt-5">
         {loading && !seriesData.length ? (
           <div className="text-sm text-zinc-400">Loading chart…</div>
         ) : null}
